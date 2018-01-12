@@ -34,7 +34,7 @@ if [[ ${osvers} -ge 7 ]]; then
 
  for USERNAME in dscl . list /Users UniqueID | awk ' $2 >= 500 {print $1}'  
   do
-    USER_HOME=$(dscl . read "/Users/$username" NFSHomeDirectory | awk '{print $2}'
+    USER_HOME=$(dscl . read "/Users/$username" NFSHomeDirectory | awk '{print $2}')
     if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
       /bin/mkdir -p "${USER_HOME}"/Library/Preferences
       /usr/sbin/chown "${USERNAME}" "${USER_HOME}"/Library

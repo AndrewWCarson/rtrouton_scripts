@@ -16,7 +16,7 @@ sw_build=$(sw_vers -buildVersion)
 
 if [[ ${osvers} -ge 7 ]]; then
 
- for USER_TEMPLATE in "/System/Library/User Template"/*
+ for USER_TEMPLATE in ls -l "/System/Library/User Template/" | grep .lproj | awk '{print $9}'
   do
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
@@ -32,22 +32,21 @@ if [[ ${osvers} -ge 7 ]]; then
  # If the directory is not found, it is created and then the
  # iCloud, Diagnostic and Siri pop-up settings are set to be disabled.
 
- for USER_HOME in /Users/*
+ for USERNAME in dscl . list /Users UniqueID | awk ' $2 >= 500 {print $1}'  
   do
-    USER_UID=`basename "${USER_HOME}"`
-    if [ ! "${USER_UID}" = "Shared" ]; then
-      if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
-        /bin/mkdir -p "${USER_HOME}"/Library/Preferences
-        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library
-        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
-      fi
-      if [ -d "${USER_HOME}"/Library/Preferences ]; then
-        /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
-        /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
-        /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
-        /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${sw_build}"
-        /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE
-        /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant.plist
+    USER_HOME=$(dscl . read "/Users/$username" NFSHomeDirectory | awk '{print $2}'
+    if [ ! -d "${USER_HOME}"/Library/Preferences ]; then
+      /bin/mkdir -p "${USER_HOME}"/Library/Preferences
+      /usr/sbin/chown "${USERNAME}" "${USER_HOME}"/Library
+      /usr/sbin/chown "${USERNAME}" "${USER_HOME}"/Library/Preferences
+    fi
+    if [ -d "${USER_HOME}"/Library/Preferences ]; then
+      /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
+      /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
+      /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
+      /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${sw_build}"
+      /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE
+      /usr/sbin/chown "${USERNAME}" "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant.plist
       fi
     fi
   done

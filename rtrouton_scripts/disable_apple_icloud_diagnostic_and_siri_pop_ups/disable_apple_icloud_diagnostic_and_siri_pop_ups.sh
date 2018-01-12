@@ -16,7 +16,7 @@ sw_build=$(sw_vers -buildVersion)
 
 if [[ ${osvers} -ge 7 ]]; then
 
- for USER_TEMPLATE in ls -l "/System/Library/User Template/" | grep .lproj | awk '{print $9}'
+ for USER_TEMPLATE in ls -1 "/System/Library/User Template/"
   do
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
